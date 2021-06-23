@@ -3,6 +3,7 @@ package at.ac.fhcampuswien.newsanalyzer.ui;
 
 import at.ac.fhcampuswien.newsanalyzer.ctrl.Controller;
 import at.ac.fhcampuswien.newsanalyzer.ctrl.NewsAPIException;
+import at.ac.fhcampuswien.newsanalyzer.downloader.ParallelDownloader;
 import at.ac.fhcampuswien.newsanalyzer.downloader.SequentialDownloader;
 import at.ac.fhcampuswien.newsapi.NewsApi;
 import at.ac.fhcampuswien.newsapi.NewsApiBuilder;
@@ -48,13 +49,24 @@ public class UserInterface {
 		menu.insert("x", "Shortest author name", this::getShortestNameOfAuthors);	// Exercise 3
 		menu.insert("y", "Get article count", this::getArticleCount);	// Exercise 3
 		menu.insert("z", "Sort by longest title", this::getSortArticlesByLongestTitle); // Exercise 3
-		menu.insert("g", "Download URLs sequentially", () -> {
+		menu.insert("g", "Download last search sequential", () -> {
 			//Todo
 			long start = System.nanoTime();
 			SequentialDownloader downloader = new SequentialDownloader();
-			downloader.process(ctrl.getURLs());
+			downloader.process(ctrl.getURLs(), ctrl.getTitles());
 			long stop = System.nanoTime();
 			System.out.println("Time: " + (stop-start)*0.000000001 + " s");
+		});
+		menu.insert("h", "Download last search parallel", () -> {
+			long startTime = System.nanoTime();
+			ParallelDownloader downloader = new ParallelDownloader();
+			try {
+				downloader.process(ctrl.getURLs(), ctrl.getTitles());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			long stopTime = System.nanoTime();
+			System.out.println("Time needed: " + (stopTime - startTime)*0.000000001 + " secs");
 		});
 		menu.insert("q", "Quit", null);
 		Runnable choice;
